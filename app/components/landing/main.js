@@ -76,10 +76,10 @@ export default function main() {
           <div className="max-w-7xl mx-auto px-4 md:px-0">
             <div className="container mx-auto lg:flex">
               <div className="w-full lg:w-4/6 flex items-center py-10 lg:h-screen">
-                <div className="lg:pr-6">
-                  <h1 className="font-dm-sans">
+                <div className="lg:pr-6 xl:-translate-y-10">
+                  <h1 className="font-dm-sans sm:-mb-2">
                     {/* create  */}
-                    <span className="inline-flex items-center space-x-1">
+                    <span className="inline-flex items-center space-x-1 ">
                       <span className="sm:text-4xl text-2xl   sm:mt-2 ">
                         Create
                       </span>
@@ -103,7 +103,7 @@ export default function main() {
                     {/* discuss  */}
                     <span className="inline-flex items-center space-x-1">
                       <span className="sm:text-4xl text-2xl   sm:mt-2 ">
-                        , discuss
+                        , discuss{" "}
                       </span>
                       <span>
                         <svg
@@ -126,7 +126,7 @@ export default function main() {
                     <br className="sm:block md:hidden" />
                     <span className="inline-flex items-center space-x-1">
                       <span className="sm:text-4xl text-2xl sm:mt-2 ">
-                        {" "}
+                        <span className="px-1 hidden md:inline lg:hidden xl:inline"></span>
                         brainstorm
                       </span>
                       <span>
@@ -145,35 +145,35 @@ export default function main() {
                         </svg>
                       </span>
                     </span>
-                    {/* and Revise in audio rooms with friends!  */}
+                    {/* and Revise in audio rooms with friends!  */}{" "}
                     <span className="sm:text-4xl text-2xl -translate-y-0 xs:translate-y-0 inline-block pl-1">
                       and
                     </span>
                     <br className=" block xl:hidden" />
                     <span className="font-hi-melody text-[36px] sm:text-5xl -translate-y-1 xs:translate-y-0 inline-block xl:pl-1">
                       Revise
-                    </span>
+                    </span>{" "}
                     <span className="leading-[0.25] sm:mt-0">
-                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 inline-block pl-1">
+                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 xl:-translate-y-1 inline-block pl-1">
                         in
-                      </span>
-                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 inline-block pl-1">
+                      </span>{" "}
+                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0  xl:-translate-y-1 inline-block pl-1">
                         audio
                       </span>{" "}
                       <br className="block xs:hidden" />
-                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 sm:-translate-y-0 md:translate-y-0 inline-block xs:pl-1">
+                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0  sm:-translate-y-0 md:translate-y-0  xl:-translate-y-1 inline-block xs:pl-1">
                         rooms
                       </span>
                       <br className="hidden xs:block md:hidden" />{" "}
-                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 sm:-translate-y-2 md:translate-y-0 inline-block lg:-translate-y-2 xl:translate-y-0 pl-1">
+                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 sm:-translate-y-2 md:translate-y-0 inline-block lg:-translate-y-2 xl:-translate-y-1 pl-1">
                         with
-                      </span>
-                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 sm:-translate-y-2 md:translate-y-0 inline-block lg:-translate-y-2 xl:translate-y-0 pl-1">
+                      </span>{" "}
+                      <span className="sm:text-4xl text-2xl -translate-y-1 xs:translate-y-0 sm:-translate-y-2 md:translate-y-0 inline-block lg:-translate-y-2 xl:-translate-y-1 pl-1">
                         friends!
                       </span>
                     </span>
                   </h1>
-                  <p className="text-base sm:text-xl my-2 font-dm-sans text-secondary">
+                  <p className="text-base sm:text-xl my-2 sm:-mt-2 pl-0.5 font-dm-sans text-secondary">
                     Revise with students from all over the world.
                   </p>
                   <span className="inline-flex space-x-2 justify-start mt-2">
