@@ -58,12 +58,17 @@ export default function feed({ className, data }) {
                 >
                   Room tags
                 </label>
+                {/* https://codesandbox.io/s/react-tag-input-component-rgf97?file=/src/App.js:68-93 */}
                 <TagsInput
                   id="roomTag"
                   value={selectedTag}
                   onChange={setSelectedTag}
                   name="roomTag"
                   placeHolder="enter tags"
+                  classNames={{
+                    tag: "font-dm-sans text-sm",
+                    input: "font-dm-sans",
+                  }}
                 />
               </div>
               <button className="flex justify-around rounded-[5px] bg-primary text-white px-3 py-2">
