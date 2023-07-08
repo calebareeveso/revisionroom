@@ -553,7 +553,7 @@ export default function page() {
   ];
 
   return (
-    <div className="md:flex space-x-2 mt-4">
+    <div className="md:flex md:space-x-2 mt-4">
       <section className="sticky top-1 hidden xl:flex flex-col space-y-4 xl:w-1/4">
         <School className="w-full" data={schoolData} slice={6} />
         <Student className="w-full" data={studentData} slice={6} />

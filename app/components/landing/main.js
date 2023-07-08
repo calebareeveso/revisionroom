@@ -362,7 +362,7 @@ export default function main() {
             <div className="container mx-auto lg:flex mb-20 sm:mb-40 mt-20 md:mt-60">
               <div className="w-full lg:w-1/2 relative">
                 <img
-                  className="rounded-lg object-cove object-left sm:object-center h-56 xs:h-64 sm:h-[26rem] md:h-[30rem] lg:h-[20rem] xl:h-[26rem] min-w-full"
+                  className="rounded-lg object-left sm:object-center h-56 xs:h-64 sm:h-[26rem] md:h-[30rem] lg:h-[20rem] xl:h-[26rem] min-w-full"
                   src="/images/explore.jpg"
                   loading={"lazy"}
                 />

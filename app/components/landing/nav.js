@@ -131,7 +131,7 @@ export default function nav() {
                       className="p-0 m-0 border-0 overflow-visible h-auto w-auto"
                     >
                       <img
-                        className="h-6 w-6 mx-2 my-2 md:mx-4 md:my-2 md:h-9 md:w-9 outline outline-offset-2 outline-2 outline-primary rounded-[100%]"
+                        className="h-6 w-6 mx-2 my-2 md:mx-4 md:my-2 md:h-9 md:w-9 ring-offset-2 ring-2 ring-primary rounded-[100%]"
                         src="/images/speaker_avatar.jpeg"
                         loading={"lazy"}
                       />
