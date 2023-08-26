@@ -1,19 +1,86 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
 // mantine
 import { Autocomplete, Popover, Button } from "@mantine/core";
+// next link
+import Link from "next/link";
+// import { Link } from "nextjs13-router-events";
+// sigout auth
+import signOut from "../../auth/signout";
+// routing
+import { useRouter } from "next/navigation";
+// auth
+import { useAuthContext } from "../../context/authContext";
+// firesore
+import getUserData from "../../../utils/firebase/firestore/get/userData";
+import getAllRoomData from "../../../utils/firebase/firestore/get/allRoomData";
+import updateUserData from "../../../utils/firebase/firestore/update/userData";
 export default function nav() {
+  // routing
+  const router = useRouter();
+  // signin states
   const [userSignedIn, setuserSignedIn] = useState(false);
   // Mobile Search
   const [mobileSearch, setmobileSearch] = useState(false);
 
-  useEffect(() => {
-    setuserSignedIn(true);
-  }, []);
-
   // Search
   const [searchInputValue, setsearchInputValue] = useState("");
+
+  const onSignOut = async (event) => {
+    event.preventDefault();
+    const { result: updatedUserDataResult, error: updatedUserDataError } =
+      await updateUserData({ active: false });
+
+    const { result, error } = await signOut();
+
+    if (error) {
+      return console.log(error);
+    }
+
+    // else successful
+    alert("Success SigOut ✅");
+    console.log(result);
+  };
+  // handle auth
+  const { user } = useAuthContext();
+  useEffect(() => {
+    console.log("USER log from feed", user);
+    if (user !== null) setuserSignedIn(true);
+  }, [user]);
+
+  // get siginin user data
+  const [schoolName, setschoolName] = useState("");
+  // searchData
+  const [searchData, setSearchData] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const { result, error } = await getUserData();
+      console.log("getUserData=> ", result);
+      const data = result?.data();
+      console.log("result?.data()=> ", result?.data());
+      setschoolName(result?.data().school);
+
+      // room data
+      const { result: roomDataResult, error: roomDataError } =
+        await getAllRoomData();
+      const roomData = [];
+      roomDataResult.forEach((doc) => {
+        roomData.push(doc.data());
+      });
+      const sData = roomData.map((item) => ({
+        ...item,
+        value: item.name,
+      }));
+      console.log("searchData::", sData);
+      setSearchData(sData);
+    })();
+  }, []);
+
+  // useEffect(() => {
+  //   setuserSignedIn(true);
+  // }, []);
+
   return (
     <nav id="primary-navigation" className="bg-white ">
       <div className="max-w-7xl mx-auto px-4 md:px-0">
@@ -39,6 +106,15 @@ export default function nav() {
                   placeholder="Search for revision rooms..."
                 /> */}
                 <Autocomplete
+                  classNames={{ dropdown: "rounded-lg p-0" }}
+                  itemComponent={({ value, roomId }) => (
+                    <Link
+                      className="px-4 py-2.5 font-dm-sans hover:bg-secondaryBg rounded-md"
+                      href={`/room/${roomId}`}
+                    >
+                      {value}
+                    </Link>
+                  )}
                   icon={
                     <svg
                       className=""
@@ -61,12 +137,8 @@ export default function nav() {
                   variant="unstyled"
                   radius="xs"
                   placeholder="Search for rivision rooms..."
-                  data={[
-                    "Exponentials",
-                    "Logarithms",
-                    "Binomial",
-                    "Distribution",
-                  ]}
+                  // search data
+                  data={searchData}
                   className="bg-secondaryBg focus:outline-none text-gray-900 sm:text-sm w-full"
                 />
               </div>
@@ -87,8 +159,8 @@ export default function nav() {
                         <path
                           d="M12.8536 2.85355C13.0488 2.65829 13.0488 2.34171 12.8536 2.14645C12.6583 1.95118 12.3417 1.95118 12.1464 2.14645L7.5 6.79289L2.85355 2.14645C2.65829 1.95118 2.34171 1.95118 2.14645 2.14645C1.95118 2.34171 1.95118 2.65829 2.14645 2.85355L6.79289 7.5L2.14645 12.1464C1.95118 12.3417 1.95118 12.6583 2.14645 12.8536C2.34171 13.0488 2.65829 13.0488 2.85355 12.8536L7.5 8.20711L12.1464 12.8536C12.3417 13.0488 12.6583 13.0488 12.8536 12.8536C13.0488 12.6583 13.0488 12.3417 12.8536 12.1464L8.20711 7.5L12.8536 2.85355Z"
                           fill="currentColor"
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
                         ></path>
                       </svg>
                     </span>
@@ -132,7 +204,8 @@ export default function nav() {
                     >
                       <img
                         className="h-6 w-6 mx-2 my-2 md:mx-4 md:my-2 md:h-9 md:w-9 ring-offset-2 ring-2 ring-primary rounded-[100%]"
-                        src="/images/speaker_avatar.jpeg"
+                        // src="/images/speaker_avatar.jpeg"
+                        src={user?.photoURL}
                         loading={"lazy"}
                       />
                     </Button>
@@ -142,11 +215,13 @@ export default function nav() {
                       <div className="flex flex-col space-y-2">
                         <img
                           className="h-auto w-full rounded-[6px]"
-                          src="/images/speaker_avatar.jpeg"
+                          src={user?.photoURL}
                           loading={"lazy"}
                         />
                         <div className="w-full flex justify-around flex-col">
-                          <h3 className="text-xl font-dm-sans">Oliver Smith</h3>
+                          <h3 className="text-xl font-dm-sans">
+                            {user?.displayName}
+                          </h3>
                           <p className="font-dm-sans flex space-x-2 text-base text-secondary mx-auto">
                             <span>
                               <svg
@@ -165,7 +240,7 @@ export default function nav() {
                                 />
                               </svg>
                             </span>
-                            <span>Wellington College</span>
+                            <span>{schoolName}</span>
                           </p>
                         </div>
                         <button className="flex justify-around rounded-[5px] bg-secondaryBg text-primary px-3 py-2">
@@ -180,11 +255,35 @@ export default function nav() {
                               <path
                                 d="M12.1464 1.14645C12.3417 0.951184 12.6583 0.951184 12.8535 1.14645L14.8535 3.14645C15.0488 3.34171 15.0488 3.65829 14.8535 3.85355L10.9109 7.79618C10.8349 7.87218 10.7471 7.93543 10.651 7.9835L6.72359 9.94721C6.53109 10.0435 6.29861 10.0057 6.14643 9.85355C5.99425 9.70137 5.95652 9.46889 6.05277 9.27639L8.01648 5.34897C8.06455 5.25283 8.1278 5.16507 8.2038 5.08907L12.1464 1.14645ZM12.5 2.20711L8.91091 5.79618L7.87266 7.87267L8.12731 8.12732L10.2038 7.08907L13.7929 3.5L12.5 2.20711ZM9.99998 2L8.99998 3H4.9C4.47171 3 4.18056 3.00039 3.95552 3.01877C3.73631 3.03668 3.62421 3.06915 3.54601 3.10899C3.35785 3.20487 3.20487 3.35785 3.10899 3.54601C3.06915 3.62421 3.03669 3.73631 3.01878 3.95552C3.00039 4.18056 3 4.47171 3 4.9V11.1C3 11.5283 3.00039 11.8194 3.01878 12.0445C3.03669 12.2637 3.06915 12.3758 3.10899 12.454C3.20487 12.6422 3.35785 12.7951 3.54601 12.891C3.62421 12.9309 3.73631 12.9633 3.95552 12.9812C4.18056 12.9996 4.47171 13 4.9 13H11.1C11.5283 13 11.8194 12.9996 12.0445 12.9812C12.2637 12.9633 12.3758 12.9309 12.454 12.891C12.6422 12.7951 12.7951 12.6422 12.891 12.454C12.9309 12.3758 12.9633 12.2637 12.9812 12.0445C12.9996 11.8194 13 11.5283 13 11.1V6.99998L14 5.99998V11.1V11.1207C14 11.5231 14 11.8553 13.9779 12.1259C13.9549 12.407 13.9057 12.6653 13.782 12.908C13.5903 13.2843 13.2843 13.5903 12.908 13.782C12.6653 13.9057 12.407 13.9549 12.1259 13.9779C11.8553 14 11.5231 14 11.1207 14H11.1H4.9H4.87934C4.47686 14 4.14468 14 3.87409 13.9779C3.59304 13.9549 3.33469 13.9057 3.09202 13.782C2.7157 13.5903 2.40973 13.2843 2.21799 12.908C2.09434 12.6653 2.04506 12.407 2.0221 12.1259C1.99999 11.8553 1.99999 11.5231 2 11.1207V11.1206V11.1V4.9V4.87935V4.87932V4.87931C1.99999 4.47685 1.99999 4.14468 2.0221 3.87409C2.04506 3.59304 2.09434 3.33469 2.21799 3.09202C2.40973 2.71569 2.7157 2.40973 3.09202 2.21799C3.33469 2.09434 3.59304 2.04506 3.87409 2.0221C4.14468 1.99999 4.47685 1.99999 4.87932 2H4.87935H4.9H9.99998Z"
                                 fill="currentColor"
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
+                                fillRule="evenodd"
+                                clipRule="evenodd"
                               ></path>
                             </svg>
                             <span>Edit Profile</span>
+                          </span>
+                        </button>
+                        <button
+                          onClick={onSignOut}
+                          className="flex justify-around rounded-[5px] bg-[#FBE9EB] text-[#DF4759] px-3 py-2"
+                        >
+                          <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
+                            <svg
+                              width="18"
+                              height="16"
+                              viewBox="0 0 18 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M13.1667 11.3333L16.5 8.00001M16.5 8.00001L13.1667 4.66668M16.5 8.00001H4.83333M9.83333 11.3333V12.1667C9.83333 12.8297 9.56994 13.4656 9.1011 13.9344C8.63226 14.4033 7.99637 14.6667 7.33333 14.6667H4C3.33696 14.6667 2.70107 14.4033 2.23223 13.9344C1.76339 13.4656 1.5 12.8297 1.5 12.1667V3.83334C1.5 3.1703 1.76339 2.53442 2.23223 2.06558C2.70107 1.59674 3.33696 1.33334 4 1.33334H7.33333C7.99637 1.33334 8.63226 1.59674 9.1011 2.06558C9.56994 2.53442 9.83333 3.1703 9.83333 3.83334V4.66668"
+                                stroke="#DF4759"
+                                strokeWidth="1"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+
+                            <span>Log out</span>
                           </span>
                         </button>
                       </div>
@@ -217,28 +316,36 @@ export default function nav() {
                   placeholder="Search for revision rooms..."
                 />
               </div>
-              <a
-                href="#"
-                className="ml-2 sm:ml-0 flex border-primary text-primary border-2 rounded-lg bg-tertiary px-2 xs:px-4 py-1 xs:py-2 text-sm sm:text-base"
+              <Link
+                href="/signup"
+                className="ml-2 sm:ml-0 flex border-primary text-primary border-2 rounded-lg bg-secondaryBg px-2 xs:px-4 py-1 xs:py-2 text-sm sm:text-base"
               >
                 <span className="pr-1">Get</span>
                 <span>Started</span>
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/signin"
                 className="flex  text-primary underline px-2 sm:px-4 py-2 text-sm sm:text-base"
               >
                 <span>LogIn</span>
-              </a>
+              </Link>
             </div>
           )}
         </div>
       </div>
       {/* Mobile Search Bar */}
       {mobileSearch !== false && (
-        <div className="block md:hidden px-4 pb-1">
+        <div className="block md:hidden px-4 pb-3">
           {" "}
           <Autocomplete
+            itemComponent={({ value, roomId }) => (
+              <Link
+                className="px-4 py-2.5 font-dm-sans hover:bg-secondaryBg rounded-md"
+                href={`/room/${roomId}`}
+              >
+                {value}
+              </Link>
+            )}
             icon={
               <svg
                 className=""
@@ -262,7 +369,7 @@ export default function nav() {
             radius="md"
             size="md"
             placeholder="Search for rivision rooms..."
-            data={["Exponentials", "Logarithms", "Binomial", "Distribution"]}
+            data={searchData}
             className="bg-secondaryBg focus:outline-none text-gray-900 sm:text-sm w-full rounded-[4px]"
           />
         </div>

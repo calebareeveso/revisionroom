@@ -2,12 +2,12 @@
 import Link from "next/link";
 import React from "react";
 
-export default function minimal({ number, title, id }) {
+export default function minimal({ number, name, id }) {
   return (
     <Link href={`/room/${id}`}>
       <div className="flex space-x-2 justify-between w-[16rem] md:w-auto px-4 py-3 rounded-lg bg-secondaryBg">
         <div className="flex flex-col space-y-0">
-          <h4 className="text-base font-dm-sans font-normal">{title}</h4>
+          <h4 className="text-base font-dm-sans font-normal">{name}</h4>
           <p className="flex space-x-1 items-center text-secondary w-full">
             <span className="">
               <svg

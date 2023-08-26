@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 import Footer from "./footer";
 import Nav from "./nav";
 // Import Swiper React components
@@ -12,7 +12,9 @@ import "swiper/css/navigation";
 
 // import required modules
 import { Autoplay } from "swiper/modules";
-import useWindowSize from "@/utils/hooks/usewndowsize";
+
+// hooks
+import useWindowSize from "../../../hooks/usewndowsize";
 
 // import gsap
 import { gsap } from "gsap";
@@ -20,7 +22,20 @@ import { gsap } from "gsap";
 // import ScrollTrigger
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+// auth
+import { useAuthContext } from "../../context/authContext";
+
+// routing
+import { useRouter } from "next/navigation";
 export default function main() {
+  // routing
+  const router = useRouter();
+  // handle auth
+  const { user } = useAuthContext();
+  useEffect(() => {
+    console.log("USER log from feed", user);
+    if (user !== null) router.push("/feed");
+  }, [user]);
   const [windowHeight, windowWidth] = useWindowSize();
 
   // refs
@@ -103,7 +118,7 @@ export default function main() {
                     {/* discuss  */}
                     <span className="inline-flex items-center space-x-1">
                       <span className="sm:text-4xl text-2xl   sm:mt-2 ">
-                        , discuss{" "}
+                        , Discuss{" "}
                       </span>
                       <span>
                         <svg
@@ -127,7 +142,7 @@ export default function main() {
                     <span className="inline-flex items-center space-x-1">
                       <span className="sm:text-4xl text-2xl sm:mt-2 ">
                         <span className="px-1 hidden md:inline lg:hidden xl:inline"></span>
-                        brainstorm
+                        Brainstorm
                       </span>
                       <span>
                         <svg
@@ -372,6 +387,7 @@ export default function main() {
                 >
                   <div className="scale-[0.60] xs:scale-75 md:scale-100 overflow-x-visible w-screen whitespace-nowrap no-scrollbar">
                     {/* ROOM CARD 1*/}
+
                     <div className="max-w-lg sm:max-w-xl inline-block mr-4">
                       <div className="bg-primary px-4 pt-3 pb-1 rounded-t-lg">
                         <div className="flex space-x-2 items-center">

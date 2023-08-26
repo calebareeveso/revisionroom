@@ -21,18 +21,6 @@ module.exports = {
       "4xl": ["2.5rem", "2.875rem"],
       "5xl": "3.200rem",
     },
-    colors: {
-      primary: "#398DFF",
-      secondary: "#5E5E5E",
-      tertiary: "#D9E9FF",
-      secondaryBg: "#F5F8FC",
-      // tertiaryBg:"",
-      white: "#FFFFFF",
-      // neutral: "",
-    },
-    borderRadius: {
-      lg: "10px",
-    },
     screens: {
       xs: "425px",
       sm: "640px",
@@ -42,6 +30,18 @@ module.exports = {
       "2xl": "1536px",
     },
     extend: {
+      colors: {
+        primary: "#398DFF",
+        secondary: "#5E5E5E",
+        tertiary: "#D9E9FF",
+        secondaryBg: "#F5F8FC",
+        // tertiaryBg:"",
+        white: "#FFFFFF",
+        // neutral: "",
+      },
+      borderRadius: {
+        lg: "10px",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

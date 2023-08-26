@@ -1,10 +1,14 @@
 import "../../globals.css";
 // components
-import Nav from "@/app/components/landing/nav";
+import Nav from "../../components/landing/nav";
+// firesore
+import getRoomData from "../../../utils/firebase/firestore/get/roomData";
 export const metadata = {
   title: "ROOMNAME - Revision Room",
   description: "ROOM DESCRIPTION",
 };
+// router events clientRouteChangeProvider
+import ClientRouteChangeProvider from "../../../utils/clientRouteChangeProvider";
 
 export default function RoomLayout({ children }) {
   return (

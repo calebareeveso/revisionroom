@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-export default function room({ listeners, title, id, description, tags }) {
+export default function room({ listeners, name, roomId, description, tags }) {
   const [domLoaded, setDomLoaded] = useState(false);
 
   useEffect(() => {
     setDomLoaded(true);
+    console.log("roomId:::", roomId);
   }, []);
   return (
     <>
       {domLoaded && (
-        <Link href={`/room/${id}`}>
+        <Link href={`/room/${roomId}`}>
           <div className="w-full inline-block mr-4">
             <div className="bg-primary px-4 pt-3 pb-1 rounded-t-lg">
               <div className="flex space-x-2 items-center">
@@ -31,11 +32,14 @@ export default function room({ listeners, title, id, description, tags }) {
                 </span>
               </div>
               <h3 className="text-white text-xl font-dm-sans sm:pb-3 pt-1">
-                {title}
+                {name}
               </h3>
               <div className="hidden sm:block">
                 {tags.map((tag) => (
-                  <span className="text-[12px] font-dm-sans sm:text-sm border-[1px] border-tertiary px-[6px] py-[2px] rounded-[4px] inline-block mr-1.5 text-tertiary">
+                  <span
+                    key={tag}
+                    className="text-[12px] font-dm-sans sm:text-sm border-[1px] border-tertiary px-[6px] py-[2px] rounded-[4px] inline-block mr-1.5 text-tertiary"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -44,15 +48,17 @@ export default function room({ listeners, title, id, description, tags }) {
                 <div className="flex -space-x-2 items-center">
                   {listeners.profiles.slice(0, 3).map(({ photoURL }) => (
                     <img
-                      className=" h-6 w-6 border-[1px] border-primary rounded-[100%]"
+                      className=" h-6 w-6 border-[1px] border-tertiary rounded-[100%]"
                       src={photoURL}
                       loading={"lazy"}
                     />
                   ))}
                 </div>
-                <span className="text-sm font-dm-sans sm:text-sm block my-2 mr-2 text-tertiary">
-                  {listeners.noOfListeners} listening
-                </span>
+                {listeners.profiles.length > 0 && (
+                  <span className="text-sm font-dm-sans sm:text-sm block my-2 mr-2 text-tertiary">
+                    {listeners.profiles.length} listening
+                  </span>
+                )}
               </div>
             </div>
             <div className="bg-[#2983FF] py-2 px-4 rounded-b-lg">
@@ -65,7 +71,7 @@ export default function room({ listeners, title, id, description, tags }) {
                     {description}
                   </span>
                 </div>
-                <Link href={`/room/${id}`} className="">
+                <Link href={`/room/${roomId}`} className="">
                   <span>
                     <svg
                       width={20}

@@ -3,9 +3,10 @@ import "../globals.css";
 import Nav from "../components/landing/nav";
 // auth context
 import { AuthContextProvider } from "../context/authContext";
+
 export const metadata = {
-  title: "Feed - Revision Room",
-  description: "Revise with students from all over the world",
+  title: "Sign Up - Revision Room",
+  description: "Sign up for Revision Room to students from all over the world",
 };
 
 export default function FeedLayout({ children }) {
@@ -15,7 +16,7 @@ export default function FeedLayout({ children }) {
         <AuthContextProvider>
           <Nav />
           <main className="max-w-7xl mx-auto">
-            <div className="container mx-auto"> {children}</div>
+            <div className="container mx-auto">{children}</div>
           </main>
         </AuthContextProvider>
       </body>
