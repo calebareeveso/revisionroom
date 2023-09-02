@@ -5,7 +5,7 @@ import Nav from "../components/landing/nav";
 import { AuthContextProvider } from "../context/authContext";
 export const metadata = {
   title: "Feed - Revision Room",
-  description: "Revise with students from all over the world",
+  description: "Revise with students from across England",
 };
 
 export default function FeedLayout({ children }) {

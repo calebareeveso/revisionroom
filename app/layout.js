@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthContextProvider } from "./context/authContext";
 export const metadata = {
   title: "Revision Room",
-  description: "Revise with students from all over the world",
+  description: "Revise with students from across England",
 };
 
 export default function RootLayout({ children }) {

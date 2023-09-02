@@ -189,7 +189,7 @@ export default function main() {
                     </span>
                   </h1>
                   <p className="text-base sm:text-xl my-2 sm:-mt-2 pl-0.5 font-dm-sans text-secondary">
-                    Revise with students from all over the world.
+                    Revise with students from across England
                   </p>
                   <span className="inline-flex space-x-2 justify-start mt-2">
                     <a
@@ -592,8 +592,9 @@ export default function main() {
                     <span className="text-primary">Explore</span> RevisionRooms
                   </h2>
                   <p className="text-base sm:text-xl sm:my-2 font-dm-sans text-secondary">
-                    Astrogt termoform. Trabeponas. Sper denat. Kapselbryggare.
-                    Nepoliskapet lin.
+                    Discover the world of RevisionRooms and unlock limitless
+                    collaborative learning possibilities on our innovative
+                    platform.
                   </p>
                 </div>
               </div>
@@ -632,8 +633,8 @@ export default function main() {
                     Friends
                   </h2>
                   <p className="text-base sm:text-xl my-2 font-dm-sans text-secondary">
-                    Astrogt termoform. Trabeponas. Sper denat. Kapselbryggare.
-                    Nepoliskapet lin.
+                    Easily create a new room and share it with your friends for
+                    seamless collaboration and learning on our platform.
                   </p>
                 </div>
               </div>
@@ -675,29 +676,12 @@ export default function main() {
                 >
                   {/* EMEBED SECTION */}
                   <div className="px-8 py-6 rounded-lg box-shadow w-fit bg-white scale-[0.60] xs:scale-75 sm:scale-100">
-                    {/* SPEAKER */}
-                    <div>
-                      <div className="flex">
-                        <h5 className="font-dm-sans text-xl font-bold">
-                          Speaker
-                        </h5>{" "}
-                        <span className="ml-1 py-1 px-2 bg-secondaryBg rounded-[10px] text-primary">
-                          1
-                        </span>
-                      </div>
-                      <div className="my-2 text-center inline-flex flex-col justify-around">
-                        <img
-                          className=" h-14 w-14 border-[1px] border-primary rounded-[100%]"
-                          src="/images/speaker_avatar.jpeg"
-                          loading={"lazy"}
-                        />
-                        <span className="text-secondary text-sm">Oliver</span>
-                      </div>
-                    </div>
+                    {/* eggheads */}
+
                     <div className="mt-2">
                       <div className="flex">
                         <h5 className="font-dm-sans text-xl font-bold">
-                          Listeners
+                          Eggheads
                         </h5>{" "}
                         <span className="ml-1 py-1 px-2 bg-secondaryBg rounded-[10px] text-primary">
                           32
@@ -736,11 +720,11 @@ export default function main() {
                   <h2 className="sm:text-4xl text-2xl  font-dm-sans">
                     <span className="text-primary">Connect </span>with students{" "}
                     <br className="block sm:hidden" />
-                    from all over the world
+                    from all over England
                   </h2>
                   <p className="text-base sm:text-xl my-2 font-dm-sans text-secondary">
-                    Astrogt termoform. Trabeponas. Sper denat. Kapselbryggare.
-                    Nepoliskapet lin.
+                    Join our platform to connect with students across England,
+                    fostering a vibrant global learning community.
                   </p>
                 </div>
               </div>
