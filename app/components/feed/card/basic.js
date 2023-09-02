@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect } from "react";
-import Image from "next/image";
 export default function basic({ number, fullname, photoURL, type, active }) {
   useEffect(() => {
     console.log("photoURL::", photoURL);

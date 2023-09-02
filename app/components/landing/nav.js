@@ -38,7 +38,7 @@ export default function nav() {
     }
 
     // else successful
-    alert("Success SigOut ✅");
+    // alert("Success SigOut ✅");
     console.log(result);
   };
   // handle auth
@@ -243,7 +243,7 @@ export default function nav() {
                             <span>{schoolName}</span>
                           </p>
                         </div>
-                        <button className="flex justify-around rounded-[5px] bg-secondaryBg text-primary px-3 py-2">
+                        {/* <button className="flex justify-around rounded-[5px] bg-secondaryBg text-primary px-3 py-2">
                           <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
                             <svg
                               width="15"
@@ -261,7 +261,7 @@ export default function nav() {
                             </svg>
                             <span>Edit Profile</span>
                           </span>
-                        </button>
+                        </button> */}
                         <button
                           onClick={onSignOut}
                           className="flex justify-around rounded-[5px] bg-[#FBE9EB] text-[#DF4759] px-3 py-2"

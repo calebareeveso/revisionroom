@@ -11,6 +11,8 @@ import removeRoomListeners from "../utils/firebase/firestore/delete/roomListener
 import getRoomData from "../utils/firebase/firestore/get/roomData";
 import removeRoomspeaker from "../utils/firebase/firestore/delete/roomSpeakerData";
 import deleteRoomData from "../utils/firebase/firestore/delete/roomData";
+import addRoomSpeakers from "@/utils/firebase/firestore/update/roomSpeakersData";
+
 function useReassignUserRoom(data) {
   const { user } = useAuthContext();
   // routing

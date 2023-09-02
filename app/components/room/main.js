@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 // mantine
 import { useDisclosure } from "@mantine/hooks";
 import { Drawer, Modal } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import Chat from "./sidebar/chat";
 // hooks
 import useWindowSize from "../../../hooks/usewndowsize";
@@ -17,6 +18,8 @@ import { useRouter } from "next/navigation";
 import addRoomListeners from "../../../utils/firebase/firestore/update/roomListenersData";
 import removeRoomListeners from "../../../utils/firebase/firestore/delete/roomListenersData";
 import listenToRoomData from "../../../utils/firebase/firestore/get/realTime/roomData";
+import listenToRoomCanvasData from "@/utils/firebase/firestore/get/realTime/roomCanvasData";
+import updateRoomCanvasData from "@/utils/firebase/firestore/update/roomCanvasData";
 // random lib
 import getRandomNumbers from "../../../utils/getRandomNumbers";
 // change route
@@ -25,10 +28,30 @@ import { useRouteChange } from "nextjs13-router-events";
 // Reassign User to new Room
 import useReassignUserRoom from "../../../hooks/useReassignUserRoom";
 
+import {
+  useHMSActions,
+  selectPeers,
+  useHMSStore,
+} from "@100mslive/hms-video-react";
 // https://socket.dev/npm/package/uyem
-const Uyem = dynamic(() => import("uyem"));
-import "uyem/packages/client/dist/styles.css";
+// const Uyem = dynamic(() => import("uyem"));
+// import "uyem/packages/client/dist/styles.css";
+
+// room
+import InnerRoom from "../call/Room";
+import Controls from "../call/Room/Controls";
+// loader 1
+import { Skeleton } from "@mantine/core";
+import ReactCanvasPaint from "react-canvas-paint";
+import "react-canvas-paint/dist/index.css";
 export default function mainRoom({ className, data, roomId }) {
+  // loader 2
+  const [windowHeight, windowWidth] = useWindowSize();
+  const roomPeers = useHMSStore(selectPeers);
+  const speakersAndModerators = roomPeers.filter(
+    (peer) => peer.roleName === "speaker" || peer.roleName === "moderator"
+  );
+  // router
   const router = useRouter();
   // handle auth
   const { user } = useAuthContext();
@@ -166,20 +189,257 @@ export default function mainRoom({ className, data, roomId }) {
   const [roomDataUpdated, setRoomDataUpdated] = useState(false);
   // roomdata
   const [roomData, setRoomData] = useState({ messages: [] });
+  const [roomCanvasData, setRoomCanvasData] = useState("");
+  const canvasRef = useRef(null);
+
+  const sendCanvasUpdate = async (data) => {
+    console.log("JSON.stringify(data)=> ", JSON.stringify(data));
+    // const drawData = {
+    //   roomId: roomId,
+    //   draw: data,
+    // };
+    // const { result, error } = await updateRoomCanvasData(drawData);
+  };
   useEffect(() => {
-    const unsubscribe = listenToRoomData(roomId, (data) => {
+    const unsubscribeRoomData = listenToRoomData(roomId, (data) => {
       setRoomData(data);
+    });
+    const unsubscribeRoomCanvasData = listenToRoomCanvasData(roomId, (data) => {
+      setRoomCanvasData(data.draw);
     });
 
     // Clean up the listener when the component unmounts
     return () => {
-      unsubscribe();
+      unsubscribeRoomData();
+      unsubscribeRoomCanvasData();
     };
   }, [roomId]);
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // canvasref
+    const canvas = canvasRef.current;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    // // Retrieve saved canvas data from local storage
+    // const savedCanvasData = localStorage.getItem("canvasData");
+    // const context = canvas.getContext("2d");
+    // if (savedCanvasData) {
+    //   const img = new Image();
+    //   img.src = savedCanvasData;
+    //   img.onload = () => {
+    //     context.clearRect(0, 0, canvas.width, canvas.height);
+    //     context.drawImage(img, 0, 0);
+    //   };
+    // }
+  }, [windowWidth, roomId]);
+  useEffect(() => {
+    // CanvasRef
+    const canvas = canvasRef.current;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    // Retrieve saved canvas data from local storage
+    const savedCanvasData = roomCanvasData;
+    const context = canvas.getContext("2d");
+    if (savedCanvasData) {
+      const img = new Image();
+      img.src = savedCanvasData;
+      img.onload = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(img, 0, 0);
+      };
+    }
+  }, [roomCanvasData, windowWidth, roomId]);
+
+  // @100mslive
+  const hmsActions = useHMSActions();
+  const [participantLoaded, setParticipantLoaded] = useState(false);
+
+  const peers = useHMSStore(selectPeers);
+
+  useEffect(() => {
+    // if (9 == 0) {
+    (async () => {
+      const noOfSpeakers = data.speakers.profiles.filter(
+        (profile) =>
+          profile.name.toLowerCase() === user?.displayName.toLowerCase()
+      ).length;
+      if (noOfSpeakers > 0) {
+        const response = await fetch("/api/token", {
+          method: "POST",
+          body: JSON.stringify({
+            role: "moderator",
+            roomId: roomId,
+            // roomId: roomId,
+          }),
+        });
+        const { token } = await response.json();
+
+        hmsActions.join({
+          userName: user?.displayName.toLowerCase(),
+          authToken: token,
+          settings: {
+            isAudioMuted: true,
+          },
+        });
+        setParticipantLoaded(true);
+      } else {
+        const response = await fetch("/api/token", {
+          method: "POST",
+          body: JSON.stringify({
+            role: "speaker",
+            roomId: roomId,
+          }),
+        });
+        const { token } = await response.json();
+
+        hmsActions.join({
+          userName: user?.displayName.toLowerCase(),
+          authToken: token,
+          settings: {
+            isAudioMuted: true,
+          },
+        });
+        setParticipantLoaded(true);
+      }
+    })();
+    // }
+  }, []);
   useReassignUserRoom(data);
+
+  /////////////////////////////////////
+  /////////////////////////////////////
+  /////////////////////////////////////
+  // Drawing on canvas
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [ctx, setCtx] = useState(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    setCtx(context);
+  }, []); // This useEffect only runs once when the component mounts
+
+  const startDrawing = ({ nativeEvent }) => {
+    const { offsetX, offsetY } = nativeEvent;
+    ctx.beginPath();
+    ctx.moveTo(offsetX, offsetY);
+    setIsDrawing(true);
+  };
+
+  const [prevPoint, setPrevPoint] = useState({ x: 0, y: 0 });
+  const draw = ({ nativeEvent }) => {
+    if (!isDrawing) return;
+
+    const { offsetX, offsetY } = nativeEvent;
+    ctx.lineTo(offsetX, offsetY);
+    ctx.stroke();
+  };
+
+  const endDrawing = async () => {
+    ctx.closePath();
+    setIsDrawing(false);
+
+    // Save canvas data to local storage
+    const canvasData = canvasRef.current.toDataURL();
+    localStorage.setItem("canvasData", canvasData);
+    const drawData = {
+      roomId: roomId,
+      draw: canvasData,
+    };
+    const { result, error } = await updateRoomCanvasData(drawData);
+  };
+
+  const clearCanvas = async () => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    localStorage.removeItem("canvasData");
+    const drawData = {
+      roomId: roomId,
+      draw: "",
+    };
+    const { result, error } = await updateRoomCanvasData(drawData);
+  };
+  // habdle times up!
+  const createdAtFromDatabase = data.createdAt;
+  const createdAtDate = new Date(createdAtFromDatabase);
+
+  const checkTimeDifference = () => {
+    const currentTime = new Date();
+    const timeDifference = currentTime - createdAtDate;
+
+    if (timeDifference >= 240000 && timeDifference < 300000) {
+      Notifications.show({
+        id: "notification",
+        withCloseButton: true,
+        autoClose: 3000,
+        // title: "Error!!",
+        message: `Room Will end in ${Math.floor(
+          (300000 - timeDifference) / 1000
+        )} Seconds`,
+        color: "red",
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill="currentColor"
+              d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83l-1.41-1.41L10 8.59L7.17 5.76L5.76 7.17L8.59 10l-2.83 2.83l1.41 1.41L10 11.41l2.83 2.83l1.41-1.41L11.41 10z"
+            />
+          </svg>
+        ),
+        className: "text-white",
+        // style: { backgroundColor: "red" },
+        styles: {
+          root: {
+            backgroundColor: "red",
+            borderColor: "red",
+
+            "&::before": { backgroundColor: "#ffffff" },
+          },
+
+          title: {
+            color: "#ffffff",
+          },
+          description: {
+            color: "#ffffff",
+            fontWeight: "400",
+            fontFamily: "'DM Sans', sans-serif",
+            textTransform: "capitalize",
+          },
+          closeButton: {
+            color: "#ffffff",
+          },
+        },
+        sx: { backgroundColor: "red" },
+        loading: false,
+      });
+    }
+    if (timeDifference >= 300000) {
+      router.replace("/feed");
+    }
+  };
+
+  useEffect(() => {
+    checkTimeDifference();
+    const intervalId = setInterval(checkTimeDifference, 10000); // Check every 10 seconds
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // redirect when no speaker
+  useEffect(() => {
+    if (roomData == undefined) {
+      router.push("/feed");
+    }
+  }, [roomData]);
   return (
     <section className="pr-2">
+      <Notifications position="top-right" />
       <div className="rounded-t-lg bg-white px-4 py-2">
         <h4 className="font-dm-sans text-xl xs:text-2xl font-medium mb-0">
           {data.name}
@@ -188,19 +448,21 @@ export default function mainRoom({ className, data, roomId }) {
           {data.description}
         </p>
         <div className="">
-          {data.tags.map((tag) => (
-            <span
-              key={tag}
-              className="mt-1 text-sm font-dm-sans sm:text-base border-[1px] border-secondary px-[6px] py-[2px] rounded-[4px] inline-block mr-1.5 text-secondary"
-            >
-              {tag}
-            </span>
-          ))}
+          {data?.tags &&
+            data?.tags.map((tag) => (
+              <span
+                key={tag}
+                className="mt-1 text-sm font-dm-sans sm:text-base border-[1px] border-secondary px-[6px] py-[2px] rounded-[4px] inline-block mr-1.5 text-secondary"
+              >
+                {tag}
+              </span>
+            ))}
         </div>
       </div>
       <div className="block w-full pt-0.5 m-0 bg-secondaryBg"></div>
       <div className="bg-white px-4 py-2 flex flex-col space-y-2  md:h-[65vh] md:overflow-y-scroll">
-        <div className="flex flex-col xs:flex-row xs:space-x-3 space-y-2 xs:space-y-0 items-center">
+        {/* usefull buttons  */}
+        {/* <div className="flex flex-col xs:flex-row xs:space-x-3 space-y-2 xs:space-y-0 items-center">
           <button className="flex justify-around rounded-[5px] bg-secondaryBg text-primary px-3 py-2 w-full xs:w-fit">
             <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
               <svg
@@ -261,98 +523,118 @@ export default function mainRoom({ className, data, roomId }) {
               <span>Start Camera</span>
             </span>
           </button>
-        </div>
+         
+        </div> */}
         {/* WHITE BOARD STARTS */}
-        <div className="rounded-lg border-tertiary border-2 bg-secondaryBg py-20 text-center font-hi-melody text-3xl">
-          <p>White Board</p>
+        {/* <pre>{JSON.stringify(roomCanvasData, undefined, 2)}</pre> */}
+        <div className="outer__canvas w-full h-fit overflow-x-hidden overflow-y-visible relative">
+          <button
+            onClick={clearCanvas}
+            className="flex justify-around rounded-[5px] bg-primary text-white px-2 py-2 w-full xs:w-fit absolute top-0 right-0 z-[999999999]"
+          >
+            <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
+              <svg
+                className="h-4 w-4"
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </span>
+          </button>
+          <canvas
+            ref={canvasRef}
+            // width={
+            //   windowWidth > 1279
+            //     ? 580
+            //     : windowWidth > 1105
+            //     ? 700
+            //     : windowWidth > 1023
+            //     ? 510
+            //     : windowWidth > 1000
+            //     ? 500
+            //     : windowWidth > 768
+            //     ? 400
+            //     : windowWidth > 639
+            //     ? 350
+            //     : windowWidth > 425
+            //     ? 400
+            //     : windowWidth > 320
+            //     ? 280
+            //     : windowWidth > 300
+            //     ? 260
+            //     : 265
+            // }
+            // height={windowWidth > 425 ? 180 : windowWidth > 320 ? 240 : 200}
+            className="canvas rounded-lg border-tertiary border-4 bg-secondaryBg mx-auto w-full h-40 sm:h-64"
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={endDrawing}
+            onMouseLeave={endDrawing}
+          />
         </div>
+
         {/* WHITE BOARD ENDS */}
         {/* EMEBED SECTION */}
-        <Uyem
-          // Required props
-          userId={roomId}
-          // Optional props
-          server="localhost"
-          port={3000}
-          iceServers={[
-            {
-              urls: ["stun:127.0.0.1:3478"],
-            },
-            {
-              urls: ["turn:127.0.0.2:3478"],
-              username: "username",
-              credential: "password",
-            },
-          ]}
-          name="John Doe"
-        />
-        <div className="w-full pt-2 pb-14 md:pb-0 ">
-          {/* SPEAKER */}
-          <div>
-            <div className="flex">
-              <h5 className="font-dm-sans text-xl font-medium">Speaker</h5>{" "}
-              <span className="ml-1 py-1 px-2 bg-secondaryBg rounded-[10px] text-primary">
-                {roomData?.speakers?.profiles.length}
-              </span>
+
+        {/* SPEAKER AND LISTINERS */}
+
+        {participantLoaded && speakersAndModerators.length > 0 ? (
+          <InnerRoom data={roomData} />
+        ) : (
+          <section>
+            <div className="flex my-3">
+              <Skeleton height={15} my={6} radius="xl" width="20%" />
             </div>
-            <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 lg:grid-cols-7 gap-4">
-              {roomData?.speakers?.profiles.map(({ photoURL, name }) => (
-                <div
-                  key={photoURL}
-                  className="my-2 text-center inline-flex flex-col justify-around"
-                >
-                  <img
-                    className=" h-14 w-14 border-[1px] border-primary rounded-[100%]  mx-auto"
-                    src={photoURL}
-                    loading={"lazy"}
-                  />
-                  <span className="text-secondary text-sm">{name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {roomData?.listeners?.profiles.length > 0 ? (
-            <div className="mt-2">
-              <div className="flex">
-                <h5 className="font-dm-sans text-xl font-medium">Listeners</h5>{" "}
-                <span className="ml-1 py-1 px-2 bg-secondaryBg rounded-[10px] text-primary">
-                  {roomData?.listeners?.profiles.length}
-                </span>
-              </div>
-              <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 lg:grid-cols-7 gap-4">
-                {roomData?.listeners?.profiles.map(({ photoURL, name }) => (
-                  <div className="my-2 text-center inline-flex flex-col justify-around">
-                    <img
-                      key={photoURL}
-                      className=" h-14 w-14 border-[1px] border-primary rounded-[100%] mx-auto"
-                      src={photoURL}
-                      loading={"lazy"}
+            <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 lg:grid-cols-7 gap-4 mb-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8]
+                .slice(
+                  0,
+                  windowWidth > 1023
+                    ? 7
+                    : windowWidth > 768
+                    ? 6
+                    : windowWidth > 639
+                    ? 6
+                    : windowWidth > 424
+                    ? 5
+                    : 8
+                )
+                .map(() => (
+                  <div className="relative w-full overflow-hidden">
+                    <Skeleton
+                      height={
+                        windowWidth > 1023
+                          ? 70
+                          : windowWidth > 768
+                          ? 60
+                          : windowWidth > 639
+                          ? 64
+                          : windowWidth > 320
+                          ? 65
+                          : 60
+                      }
+                      my={0}
+                      circle
+                      mx={"auto"}
                     />
-                    <span className="text-secondary text-[12px] xs:text-sm truncate ">
-                      {name}
-                    </span>
+                    <Skeleton height={10} mt={8} radius="xl" />
                   </div>
                 ))}
-              </div>
             </div>
-          ) : (
-            <div className="text-center py-10 font-dm-sans text-secondary">
-              <p>No listeners In this room :(</p>
-            </div>
-          )}
-        </div>
+          </section>
+        )}
       </div>
+
       {/* chat Icon */}
-      {/* <div
-        style={
-          opened
-            ? {
-                zIndex: 20,
-              }
-            : { zIndex: 1 }
-        }
-        className="z-[1] h-screen flex md:hidden fixed top-0 bottom-0 left-0 right-0 items-center justify-end"
-      > */}
       <button
         style={
           opened
@@ -430,7 +712,7 @@ export default function mainRoom({ className, data, roomId }) {
           </span>
         )}
       </button>
-      {/* </div> */}
+
       {/* mobile chat drawer  */}
       <Drawer
         className="block md:hidden"
@@ -450,8 +732,9 @@ export default function mainRoom({ className, data, roomId }) {
         />
       </Drawer>
       {/* footer */}
-      <div className="">
-        <div className="rounded-b-lg bg-white px-4 py-2 flex justify-between border-secondaryBg border-x-8 xs:border-x-0 border-b-8 md:border-t-2 fixed xs:static bottom-0 right-0 left-0">
+
+      <Controls />
+      {/* <div className="rounded-b-lg bg-white px-4 py-2 flex justify-between border-secondaryBg border-x-8 xs:border-x-0 border-b-8 md:border-t-2 fixed xs:static bottom-0 right-0 left-0">
           <div className="flex space-x-2 items-center">
             <button className="flex items-center sm:ml-0 bg-primary font-dm-sans text-white border-[1px] rounded-[6px] px-2 xs:px-2 py-1 xs:py-1 text-sm sm:text-sm">
               <span className="pr-1">
@@ -482,13 +765,12 @@ export default function mainRoom({ className, data, roomId }) {
             </button>
           </div>
           {/* LEAVE BTN */}
-          <div>
-            <button className="ml-2 sm:ml-0 flex border-primary text-primary border-2 rounded-lg bg-secondaryBg px-2 xs:px-4 py-1 xs:py-2 text-sm sm:text-base">
-              <span className="">Leave</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* <div>
+          <button className="ml-2 sm:ml-0 flex border-primary text-primary border-2 rounded-lg bg-secondaryBg px-2 xs:px-4 py-1 xs:py-2 text-sm sm:text-base">
+            <span className="">Leave</span>
+          </button>
+        </div> */}
+      {/* </div> */}
     </section>
   );
 }

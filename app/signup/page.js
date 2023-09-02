@@ -99,7 +99,7 @@ function Page() {
 
     // else successful
 
-    alert("Success ✅");
+    // alert("Success ✅");
     console.log(result);
     router.push("/feed");
   };

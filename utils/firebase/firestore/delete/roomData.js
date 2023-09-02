@@ -12,6 +12,8 @@ export default async function deleteRoomData(roomId) {
 
   try {
     result = await deleteDoc(doc(db, "rooms", roomId));
+    await deleteDoc(doc(db, "room-canvas", roomId));
+    await deleteDoc(doc(db, "room-chat", roomId));
   } catch (e) {
     error = e;
   }

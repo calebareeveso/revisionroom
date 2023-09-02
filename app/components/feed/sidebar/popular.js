@@ -6,10 +6,11 @@ import Minimal from "../card/room/minimal";
 import listenToAllRoomData from "../../../../utils/firebase/firestore/get/realTime/allRoomData";
 export default function Popular({ className, data, slice }) {
   const [allRoomData, setAllRoomData] = useState([]);
+  const [loadRoomData, setLoadRoomData] = useState(false);
   useEffect(() => {
     const unsubscribe = listenToAllRoomData((data) => {
       setAllRoomData(data);
-      console.log("listenToAllRoomData:", data);
+      setLoadRoomData(true);
     });
 
     // Clean up the listener when the component unmounts
@@ -24,16 +25,28 @@ export default function Popular({ className, data, slice }) {
           Popular Rooms
         </h4>
 
-        <div className="flex space-x-2 w-full overflow-x-scroll md:flex-col md:space-x-0 md:space-y-3 pb-2 md:pb-0">
-          {allRoomData.slice(0, slice).map(({ listeners, name, roomId }) => (
-            <Minimal
-              key={roomId}
-              number={listeners.profiles.length}
-              name={name}
-              id={roomId}
-            />
-          ))}
-        </div>
+        {loadRoomData && (
+          <div className="flex space-x-2 w-full overflow-x-scroll md:flex-col md:space-x-0 md:space-y-3 pb-2 md:pb-0">
+            {allRoomData.slice(0, slice).map(({ listeners, name, roomId }) => (
+              <Minimal
+                key={roomId}
+                number={listeners.profiles.length}
+                name={name}
+                id={roomId}
+              />
+            ))}
+
+            {data.length < 1 && (
+              <div className="flex justify-around items-center h-20 ">
+                {" "}
+                <h3 className="relative">
+                  <span class="pulsating-circle"></span>{" "}
+                  <span className="ml-2">Popular rooms will appear here</span>
+                </h3>{" "}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

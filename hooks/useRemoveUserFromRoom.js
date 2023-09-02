@@ -31,6 +31,15 @@ function useRemoveUserFromRoom() {
     //   alert(`is this feed: ${userRoomPathname}`);
     // };
   }, [pathname, searchParams]);
+
+  // disable room ////////////////////////////////////////////////
+  const disableRoom = async (roomId) => {
+    const response = await fetch("/api/disable-room", {
+      method: "POST",
+      body: JSON.stringify({ roomId: roomId }),
+    });
+    const { name } = await response.json();
+  };
   // remove sepaker ////////////////////////////////////////////////
   const removeSpeaker = async (roomId, speakerData) => {
     const roomData = {
@@ -77,6 +86,7 @@ function useRemoveUserFromRoom() {
       if (roomSpeakers.length == 1) {
         // alert(`DELETING ROOM ID:: ${roomId}`);
         await deleteRoomData(roomId);
+        await disableRoom(roomId);
       } else {
         await removeSpeaker(roomId, roomSpeakers[0]);
       }

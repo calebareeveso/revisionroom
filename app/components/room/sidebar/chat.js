@@ -14,6 +14,8 @@ import {
 import { getHotkeyHandler } from "@mantine/hooks";
 import { useOnClickOutside } from "../../.././../hooks/useOnClickOutside";
 import Picker from "@emoji-mart/react";
+// routing
+import { useRouter } from "next/navigation";
 // firesore
 // import addChatRoomData from "../../../../utils/firebase/firestore/add/roomChatData";
 import addChatRoomData from "../../../../utils/firebase/firestore/update/roomChatData";
@@ -82,13 +84,22 @@ export default function chat({ className, slice, isMobile, opened, roomId }) {
   const chatBoxEndRef = useRef(null);
   // handle auth
   const { user } = useAuthContext();
+
+  // router
+  const router = useRouter();
+  useEffect(() => {
+    if (roomData == undefined) {
+      router.replace("/feed");
+    }
+  }, [roomData]);
+
   return (
     <aside className={`${className} rounded-lg bg-white xs:px-4 xs:py-2`}>
       <h4 className="font-dm-sans text-md md:text-xl font-medium mb-1">Chat</h4>
       <div className="flex flex-col space-y-3 h-[75vh] overflow-y-scroll">
         {/* <pre>{JSON.stringify(roomData.messages, null, 2)}</pre> */}
-        {roomData.messages !== undefined &&
-          roomData.messages.map(({ time, fullname, message, messageID }) => (
+        {roomData?.messages !== undefined &&
+          roomData?.messages.map(({ time, fullname, message, messageID }) => (
             <div key={messageID}>
               <h6 className="flex space-x-2">
                 <span className="font-dm-sans font-medium text-base">

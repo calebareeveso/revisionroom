@@ -19,18 +19,22 @@ import firebase_app from "../../../../utils/firebase";
 // firesore
 import addRoomData from "../../../../utils/firebase/firestore/add/roomData";
 import addChatRoomData from "../../../../utils/firebase/firestore/add/roomChatData";
+import addRoomCanvasData from "@/utils/firebase/firestore/add/roomCanvasData";
 // random character id
 import ShortUniqueId from "short-unique-id";
 // listenToAllRoomData
 import listenToAllRoomData from "../../../../utils/firebase/firestore/get/realTime/allRoomData";
 // Reassign User To Room
 import useRemoveUserFromRoom from "../../../../hooks/useRemoveUserFromRoom";
+import canvasText from "../micro/canvasText";
+
 export default function feed({ className, data }) {
   const [allRoomData, setAllRoomData] = useState([]);
+  const [loadRoomData, setLoadRoomData] = useState(false);
   useEffect(() => {
     const unsubscribe = listenToAllRoomData((data) => {
       setAllRoomData(data);
-      console.log("listenToAllRoomData:", data);
+      setLoadRoomData(true);
     });
 
     // Clean up the listener when the component unmounts
@@ -57,63 +61,129 @@ export default function feed({ className, data }) {
     console.log("USER log from feed", user);
     if (user == null) router.push("/signin");
   }, [user]);
-  // craete new room
-  const createNewRoom = async (event) => {
-    const uid = new ShortUniqueId({ length: 6 });
-    event.preventDefault();
-    console.log("roomName:", roomName);
-    console.log("roomDescription:", roomDescription);
-    console.log("selectedTag:", selectedTag);
 
-    const uniqueId = uid();
-    const chatRoomData = {
-      roomId: uniqueId,
-      messages: [],
-    };
-    const { result: chatRoomDataResult, error: chatRoomDataError } =
-      await addChatRoomData(chatRoomData);
-    const roomData = {
-      name: roomName,
-      description: roomDescription,
-      tags: selectedTag,
-      roomId: uniqueId,
-      listeners: {
-        profiles: [
-          // {
-          // name: "",
-          // photoURL: "",
-          // school: "",
-          // id: "",
-          // },
-        ],
-      },
-      speakers: {
-        profiles: [
-          {
-            name: user?.displayName,
-            photoURL: user?.photoURL,
-            id: auth?.currentUser?.uid,
-          },
-        ],
-      },
-      createdAt: new Date().toISOString(),
-      createdBy: {
-        name: user?.displayName,
-        photoURL: user?.photoURL,
-        id: auth?.currentUser?.uid,
-      },
-    };
-    const { result, error } = await addRoomData(roomData);
-    console.log("addRoomData result", result);
-    console.log("addRoomData error", error);
-    if (result !== null) router.push(`/room/${uniqueId}`);
+  // craete new room
+  const [creatingRoom, setcreatingRoom] = useState(false);
+  const createNewRoom = async (event) => {
+    setcreatingRoom(true);
+    const response = await fetch("/api/create-room", {
+      method: "POST",
+      body: JSON.stringify({ name: roomName.replace(/[^a-zA-Z0-9 ]/g, "") }),
+    });
+    const { roomId } = await response.json();
+    if (roomId) {
+      event.preventDefault();
+      console.log("roomName:", roomName);
+      console.log("roomDescription:", roomDescription);
+      console.log("selectedTag:", selectedTag);
+
+      const chatRoomData = {
+        roomId: roomId,
+        messages: [],
+      };
+      const { result: chatRoomDataResult, error: chatRoomDataError } =
+        await addChatRoomData(chatRoomData);
+      const roomCanvasData = {
+        roomId: roomId,
+        draw: canvasText,
+      };
+      const { result: roomCanvasDataResult, error: roomCanvasDataError } =
+        await addRoomCanvasData(roomCanvasData);
+      const roomData = {
+        name: roomName,
+        description: roomDescription,
+        tags: selectedTag,
+        roomId: roomId,
+        listeners: {
+          profiles: [
+            // {
+            // name: "",
+            // photoURL: "",
+            // school: "",
+            // id: "",
+            // },
+          ],
+        },
+        speakers: {
+          profiles: [
+            {
+              name: user?.displayName,
+              photoURL: user?.photoURL,
+              id: auth?.currentUser?.uid,
+            },
+          ],
+        },
+        createdAt: new Date().toISOString(),
+        createdBy: {
+          name: user?.displayName,
+          photoURL: user?.photoURL,
+          id: auth?.currentUser?.uid,
+        },
+      };
+      const { result, error } = await addRoomData(roomData);
+      console.log("addRoomData result", result);
+      console.log("addRoomData error", error);
+      setcreatingRoom(false);
+      if (result !== null) router.push(`/room/${roomId}`);
+    }
   };
+  // const createNewRoom = async (event) => {
+  //   const uid = new ShortUniqueId({ length: 6 });
+  //   event.preventDefault();
+  //   console.log("roomName:", roomName);
+  //   console.log("roomDescription:", roomDescription);
+  //   console.log("selectedTag:", selectedTag);
+
+  //   const uniqueId = uid();
+  //   const chatRoomData = {
+  //     roomId: uniqueId,
+  //     messages: [],
+  //   };
+  //   const { result: chatRoomDataResult, error: chatRoomDataError } =
+  //     await addChatRoomData(chatRoomData);
+  //   const roomData = {
+  //     name: roomName,
+  //     description: roomDescription,
+  //     tags: selectedTag,
+  //     roomId: uniqueId,
+  //     listeners: {
+  //       profiles: [
+  //         // {
+  //         // name: "",
+  //         // photoURL: "",
+  //         // school: "",
+  //         // id: "",
+  //         // },
+  //       ],
+  //     },
+  //     speakers: {
+  //       profiles: [
+  //         {
+  //           name: user?.displayName,
+  //           photoURL: user?.photoURL,
+  //           id: auth?.currentUser?.uid,
+  //         },
+  //       ],
+  //     },
+  //     createdAt: new Date().toISOString(),
+  //     createdBy: {
+  //       name: user?.displayName,
+  //       photoURL: user?.photoURL,
+  //       id: auth?.currentUser?.uid,
+  //     },
+  //   };
+  //   const { result, error } = await addRoomData(roomData);
+  //   console.log("addRoomData result", result);
+  //   console.log("addRoomData error", error);
+  //   if (result !== null) router.push(`/room/${uniqueId}`);
+  // };
 
   // useRemoveUserFromRoom
   useRemoveUserFromRoom();
   return (
     <aside className={`${className} px-2 md:mr-0`}>
       <Notifications position="top-right" />
+
       <div className="rounded-lg bg-white px-4 py-2">
         <div className="flex justify-between items-center mb-2">
           <h4 className="font-dm-sans text-md md:text-xl font-medium mb-2">
@@ -231,27 +301,32 @@ export default function feed({ className, data }) {
                   }}
                 />
               </div>
+
               <button
                 onClick={createNewRoom}
                 className="flex justify-around rounded-[5px] bg-primary text-white px-3 py-2"
               >
-                <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 15 15"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <span>Create Room</span>
-                </span>
+                {creatingRoom ? (
+                  <div className="create__room__loader"></div>
+                ) : (
+                  <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 15 15"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z"
+                        fill="currentColor"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
+                    <span>Create Room</span>
+                  </span>
+                )}
               </button>
             </div>
           </Modal>
@@ -277,21 +352,54 @@ export default function feed({ className, data }) {
             <span>Create Room</span>
           </button>
         </div>
-
-        <div className="flex flex-col space-y-3">
-          {allRoomData
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .map(({ listeners, name, roomId, description, tags }) => (
-              <RoomCard
-                key={roomId}
-                listeners={listeners}
-                roomId={roomId}
-                name={name}
-                description={description}
-                tags={tags}
-              />
-            ))}
-        </div>
+        {loadRoomData ? (
+          <div className="flex flex-col space-y-3">
+            {allRoomData
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map(({ listeners, name, roomId, description, tags }) => (
+                <RoomCard
+                  key={roomId}
+                  listeners={listeners}
+                  roomId={roomId}
+                  name={name}
+                  description={description}
+                  tags={tags}
+                />
+              ))}
+            {allRoomData.length < 1 && (
+              <div className="flex justify-around items-center h-20 md:h-64">
+                {" "}
+                <h3 className="relative">
+                  <span class="pulsating-circle"></span>{" "}
+                  <span className="ml-2">Live rooms will appear here</span>
+                </h3>{" "}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            aria-label="Blue and tan hamster running in a metal wheel"
+            role="img"
+            className="small-wheel-and-hamster mx-auto"
+          >
+            <div className="wheel"></div>
+            <div className="hamster">
+              <div className="hamster__body">
+                <div className="hamster__head">
+                  <div className="hamster__ear"></div>
+                  <div className="hamster__eye"></div>
+                  <div className="hamster__nose"></div>
+                </div>
+                <div className="hamster__limb hamster__limb--fr"></div>
+                <div className="hamster__limb hamster__limb--fl"></div>
+                <div className="hamster__limb hamster__limb--br"></div>
+                <div className="hamster__limb hamster__limb--bl"></div>
+                <div className="hamster__tail"></div>
+              </div>
+            </div>
+            <div className="spoke"></div>
+          </div>
+        )}
       </div>
     </aside>
   );
