@@ -530,7 +530,7 @@ export default function mainRoom({ className, data, roomId }) {
         <div className="outer__canvas w-full h-fit overflow-x-hidden overflow-y-visible relative">
           <button
             onClick={clearCanvas}
-            className="flex justify-around rounded-[5px] bg-primary text-white px-2 py-2 w-full xs:w-fit absolute top-0 right-0 z-[999999999]"
+            className="flex justify-around rounded-[5px] bg-primary text-white px-2 py-2 w-full xs:w-fit absolute top-0 right-0"
           >
             <span className="font-dm-sans mx-auto items-center flex space-x-2 text-">
               <svg
@@ -574,7 +574,7 @@ export default function mainRoom({ className, data, roomId }) {
             //     : 265
             // }
             // height={windowWidth > 425 ? 180 : windowWidth > 320 ? 240 : 200}
-            className="canvas rounded-lg border-tertiary border-4 bg-secondaryBg mx-auto w-full h-40 sm:h-64"
+            className="canvas rounded-lg border-tertiary border-4 bg-secondaryBg mx-auto w-full h-60 sm:h-64"
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={endDrawing}
@@ -620,7 +620,7 @@ export default function mainRoom({ className, data, roomId }) {
                           ? 64
                           : windowWidth > 320
                           ? 65
-                          : 60
+                          : 55
                       }
                       my={0}
                       circle
@@ -766,7 +766,7 @@ export default function mainRoom({ className, data, roomId }) {
           </div>
           {/* LEAVE BTN */}
       {/* <div>
-          <button className="ml-2 sm:ml-0 flex border-primary text-primary border-2 rounded-lg bg-secondaryBg px-2 xs:px-4 py-1 xs:py-2 text-sm sm:text-base">
+          <button className="ml-0 flex border-primary text-primary border-2 rounded-lg bg-secondaryBg px-4 py-2 text-sm sm:text-base">
             <span className="">Leave</span>
           </button>
         </div> */}

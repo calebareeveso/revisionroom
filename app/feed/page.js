@@ -578,11 +578,11 @@ export default async function page() {
         <Student className="w-full" data={studentData} slice={6} />
       </section>
       <section className="md:w-2/3 xl:w-2/4 rounded-lg">
-        <Popular className="w-full block md:hidden" data={roomData} slice={6} />
+        {/* <Popular className="w-full block md:hidden" data={roomData} slice={6} /> */}
         <Feed className="w-full" data={roomData} />
       </section>
       <section className="sticky top-1 rounded-lg md:w-1/3 xl:w-1/4">
-        <Popular className="w-full hidden md:block" data={roomData} slice={6} />
+        <Popular className="w-full" data={roomData} slice={6} />
       </section>
     </div>
   );

@@ -19,7 +19,11 @@ export default function Popular({ className, data, slice }) {
     };
   }, []);
   return (
-    <aside className={`${className} `}>
+    <aside
+      className={`${className} ${
+        loadRoomData && allRoomData.length > 0 ? "block" : "hidden md:block"
+      }`}
+    >
       <div className="rounded-lg bg-white px-4 py-2 my-4 md:my-0 mx-2 md:mr-0">
         <h4 className="font-dm-sans text-md md:text-xl font-medium mb-2">
           Popular Rooms
@@ -36,12 +40,12 @@ export default function Popular({ className, data, slice }) {
               />
             ))}
 
-            {data.length < 1 && (
+            {allRoomData.length < 1 && (
               <div className="flex justify-around items-center h-20 ">
                 {" "}
                 <h3 className="relative">
                   <span class="pulsating-circle"></span>{" "}
-                  <span className="ml-2">Popular rooms will appear here</span>
+                  <span className="ml-2 text-sm">Rooms will appear here</span>
                 </h3>{" "}
               </div>
             )}

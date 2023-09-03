@@ -183,7 +183,6 @@ export default function feed({ className, data }) {
   return (
     <aside className={`${className} px-2 md:mr-0`}>
       <Notifications position="top-right" />
-
       <div className="rounded-lg bg-white px-4 py-2">
         <div className="flex justify-between items-center mb-2">
           <h4 className="font-dm-sans text-md md:text-xl font-medium mb-2">
