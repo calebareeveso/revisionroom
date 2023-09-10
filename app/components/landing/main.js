@@ -27,6 +27,8 @@ import { useAuthContext } from "../../context/authContext";
 
 // routing
 import { useRouter } from "next/navigation";
+// next link
+import Link from "next/link";
 export default function main() {
   // routing
   const router = useRouter();
@@ -192,18 +194,18 @@ export default function main() {
                     Revise with students from across England
                   </p>
                   <span className="inline-flex space-x-2 justify-start mt-2">
-                    <a
-                      href="#"
-                      className="mx-auto text-white rounded-lg bg-primary px-4 py-2 text-base sm:text-xl font-dm-sans"
+                    <Link
+                      href="/signup"
+                      className="mx-auto text-white rounded-lg bg-primary px-4 py-2 text-base sm:text-xl font-dm-sans no-underline"
                     >
                       <span className="pr-1">Get Started</span>
-                    </a>
-                    <a
-                      href="#"
+                    </Link>
+                    <Link
+                      href="/signin"
                       className="mx-auto text-primary underline px-4 py-2 text-base sm:text-xl font-dm-sans"
                     >
                       Login
-                    </a>
+                    </Link>
                   </span>
                 </div>
               </div>

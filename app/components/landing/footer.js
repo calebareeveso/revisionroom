@@ -1,5 +1,6 @@
 import React from "react";
-
+// next link
+import Link from "next/link";
 export default function footer() {
   return (
     <footer
@@ -13,12 +14,12 @@ export default function footer() {
               Revise with students <br />
               from across England
             </p>
-            <a
-              href="#"
+            <Link
+              href="/signup"
               className="mx-auto text-primary rounded-lg bg-white px-4 py-2 txet-base sm:text-xl font-dm-sans"
             >
               <span className="pr-1">Get Started</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
